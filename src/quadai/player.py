@@ -155,11 +155,20 @@ class DQNPlayer(Player):
         super().__init__()
 
         self.action_value = DQN.load(self.path)
+        self.repeat_frames = 5
+        self.frames_left = 0
+        self.last_action = 0
 
     def act(self, obs):
-        obs = np.asarray(obs, dtype=np.float32)
-        action, _ = self.action_value.predict(obs, deterministic=True)
-        action = int(action)
+        if self.frames_left == 0:
+            obs = np.asarray(obs, dtype=np.float32)
+            action, _ = self.action_value.predict(obs, deterministic=True)
+            action = int(action)
+            self.last_action = action
+            self.frames_left = self.repeat_frames - 1
+        else:
+            action = self.last_action
+            self.frames_left -= 1
 
         thruster_left = self.thruster_mean
         thruster_right = self.thruster_mean

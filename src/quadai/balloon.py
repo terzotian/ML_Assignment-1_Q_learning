@@ -14,7 +14,7 @@ from math import sin, cos, pi, sqrt
 import numpy as np
 import pygame
 from pygame.locals import *
-from quadai.player import DQNPlayer, HumanPlayer, PIDPlayer
+from quadai.player import DQNPlayer, HumanPlayer
 
 
 def correct_path(current_path):
@@ -120,8 +120,8 @@ def balloon():
     pygame.font.init()
     name_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Bold.ttf"), 20)
     name_hud_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Bold.ttf"), 15)
-    time_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Bold.ttf"), 30)
-    score_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Regular.ttf"), 20)
+    time_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Bold.ttf"), 48)
+    score_font = pygame.font.Font(correct_path("assets/fonts/Roboto-Regular.ttf"), 24)
     respawn_timer_font = pygame.font.Font(
         correct_path("assets/fonts/Roboto-Bold.ttf"), 90
     )
@@ -132,12 +132,16 @@ def balloon():
     # Function to display info about a player
 
     def display_info(position):
-        name_text = name_font.render(player.name, True, (255, 255, 255))
+        name_str = player.name
+        score_str = "Score : " + str(player.target_counter)
+        name_text = name_font.render(name_str, True, (255, 255, 255))
+        name_shadow = name_font.render(name_str, True, (0, 0, 0))
+        score_text = score_font.render(score_str, True, (255, 255, 255))
+        score_shadow = score_font.render(score_str, True, (0, 0, 0))
+        screen.blit(name_shadow, (position + 2, 22))
         screen.blit(name_text, (position, 20))
-        target_text = score_font.render(
-            "Score : " + str(player.target_counter), True, (255, 255, 255)
-        )
-        screen.blit(target_text, (position, 45))
+        screen.blit(score_shadow, (position + 2, 47))
+        screen.blit(score_text, (position, 45))
         if player.dead == True:
             respawning_text = respawning_font.render(
                 "Respawning...", True, (255, 255, 255)
@@ -147,10 +151,10 @@ def balloon():
     # Initialize game variables
     time = 0
     step = 0
-    time_limit = 100
+    time_limit = 40
     respawn_timer_max = 3
 
-    players = [HumanPlayer(), PIDPlayer(), DQNPlayer()]
+    players = [HumanPlayer(), DQNPlayer()]
 
     # Generate 100 targets
     targets = []
@@ -188,18 +192,7 @@ def balloon():
                 player.angular_acceleration = 0
 
                 # Calculate propeller force in function of input
-                if player.name == "PID":
-                    thruster_left, thruster_right = player.act(
-                        [
-                            targets[player.target_counter][0] - player.x_position,
-                            player.x_speed,
-                            targets[player.target_counter][1] - player.y_position,
-                            player.y_speed,
-                            player.angle,
-                            player.angular_speed,
-                        ]
-                    )
-                elif player.name == "DQN":
+                if player.name == "DQN":
                     angle_to_up = player.angle / 180 * pi
                     velocity = sqrt(player.x_speed**2 + player.y_speed**2)
                     angle_velocity = player.angular_speed
@@ -370,10 +363,13 @@ def balloon():
             elif player_index == 3:
                 display_info(350)
 
-            time_text = time_font.render(
-                "Time : " + str(int(time_limit - time)), True, (255, 255, 255)
-            )
-            screen.blit(time_text, (670, 30))
+            time_str = "Time : " + str(int(time_limit - time))
+            time_text = time_font.render(time_str, True, (255, 255, 255))
+            time_shadow = time_font.render(time_str, True, (0, 0, 0))
+            tx = WIDTH - time_text.get_width() - 20
+            ty = 20
+            screen.blit(time_shadow, (tx + 2, ty + 2))
+            screen.blit(time_text, (tx, ty))
 
         # Ending conditions
         if time > time_limit:
