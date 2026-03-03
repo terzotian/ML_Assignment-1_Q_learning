@@ -14,7 +14,7 @@ from math import sin, cos, pi, sqrt
 import numpy as np
 import pygame
 from pygame.locals import *
-from quadai.player import HumanPlayer, PIDPlayer, SACPlayer
+from quadai.player import DQNPlayer, HumanPlayer, PIDPlayer
 
 
 def correct_path(current_path):
@@ -150,7 +150,7 @@ def balloon():
     time_limit = 100
     respawn_timer_max = 3
 
-    players = [HumanPlayer(), PIDPlayer(), SACPlayer()]
+    players = [HumanPlayer(), PIDPlayer(), DQNPlayer()]
 
     # Generate 100 targets
     targets = []
@@ -188,7 +188,7 @@ def balloon():
                 player.angular_acceleration = 0
 
                 # Calculate propeller force in function of input
-                if player.name == "DQN" or player.name == "PID":
+                if player.name == "PID":
                     thruster_left, thruster_right = player.act(
                         [
                             targets[player.target_counter][0] - player.x_position,
@@ -199,7 +199,7 @@ def balloon():
                             player.angular_speed,
                         ]
                     )
-                elif player.name == "SAC":
+                elif player.name == "DQN":
                     angle_to_up = player.angle / 180 * pi
                     velocity = sqrt(player.x_speed**2 + player.y_speed**2)
                     angle_velocity = player.angular_speed

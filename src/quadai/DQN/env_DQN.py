@@ -33,10 +33,10 @@ class droneEnv(gym.Env):
         self.screen = pygame.display.set_mode((800, 800))
         self.FramePerSec = pygame.time.Clock()
 
-        self.player = pygame.image.load(os.path.join("assets/sprites/drone_old.png"))
+        self.player = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/sprites/drone_old.png"))
         self.player.convert()
 
-        self.target = pygame.image.load(os.path.join("assets/sprites/target_old.png"))
+        self.target = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/sprites/target1.png"))
         self.target.convert()
 
         pygame.font.init()
@@ -214,7 +214,7 @@ class droneEnv(gym.Env):
             info,
         )
 
-    def render(self, mode):
+    def render(self, mode="human"):
         # Pygame rendering
         pygame.event.get()
         self.screen.fill(0)
@@ -243,8 +243,11 @@ class droneEnv(gym.Env):
         )
         self.screen.blit(textsurface3, (20, 50))
 
-        pygame.display.update()
-        self.FramePerSec.tick(self.FPS)
+        if mode == "human":
+            pygame.display.update()
+            self.FramePerSec.tick(self.FPS)
+        elif mode == "rgb_array":
+            return np.transpose(pygame.surfarray.array3d(self.screen), (1, 0, 2))
 
     def close(self):
         pass

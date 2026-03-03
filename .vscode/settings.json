@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": "/Applications/anaconda3/envs/game/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.condaPath": "/Applications/anaconda3/bin/conda"
+}

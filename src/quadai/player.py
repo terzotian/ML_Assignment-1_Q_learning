@@ -9,10 +9,11 @@ This is where the players for the main game are defined
 
 import os
 
+import numpy as np
 import pygame
 from pygame.locals import *
 
-from stable_baselines3 import SAC
+from stable_baselines3 import DQN, SAC
 
 from quadai.PID.controller_PID import PID
 
@@ -139,4 +140,43 @@ class SACPlayer(Player):
         thruster_right += action0 * self.thruster_amplitude
         thruster_left += action1 * self.diff_amplitude
         thruster_right -= action1 * self.diff_amplitude
+        return thruster_left, thruster_right
+
+
+class DQNPlayer(Player):
+    def __init__(self):
+        self.name = "DQN"
+        self.alpha = 50
+        self.thruster_amplitude = 0.04
+        self.diff_amplitude = 0.0006
+        model_path = "DQN/models/rl_model_v0_5000000_steps.zip"
+        model_path = os.path.join(os.path.dirname(__file__), model_path)
+        self.path = model_path
+        super().__init__()
+
+        self.action_value = DQN.load(self.path)
+
+    def act(self, obs):
+        obs = np.asarray(obs, dtype=np.float32)
+        action, _ = self.action_value.predict(obs, deterministic=True)
+        action = int(action)
+
+        thruster_left = self.thruster_mean
+        thruster_right = self.thruster_mean
+
+        if action == 0:
+            pass
+        elif action == 1:
+            thruster_left += self.thruster_amplitude
+            thruster_right += self.thruster_amplitude
+        elif action == 2:
+            thruster_left -= self.thruster_amplitude
+            thruster_right -= self.thruster_amplitude
+        elif action == 3:
+            thruster_left += self.diff_amplitude
+            thruster_right -= self.diff_amplitude
+        elif action == 4:
+            thruster_left -= self.diff_amplitude
+            thruster_right += self.diff_amplitude
+
         return thruster_left, thruster_right
